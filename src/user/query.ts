@@ -4,6 +4,8 @@ import "reflect-metadata";
 import { Resolver, Query, Ctx, Authorized } from "type-graphql";
 import { InvitationResponse } from "./registerInput";
 import InvitationModel from "../models/invitation";
+import { filter, find } from "lodash";
+import invitation from "../models/invitation";
 
 @Resolver()
 export default class QueryClass {
@@ -32,11 +34,22 @@ export default class QueryClass {
 
   @Query((returns) => [User])
   async getSingleUsers(@Ctx() context: Context) {
-    const singleUsers = await await UserModel.find({ step: Step.CHOOSE_TEAM });
+    const singleUsers = await UserModel.find({ step: Step.CHOOSE_TEAM });
+    const sentInvitations = await InvitationModel.find({
+      sendersId: context.user._id,
+    });
 
-    console.log(singleUsers);
-    console.log(context.user._id);
+    const filteredUsers = filter(singleUsers, (user) => {
+      const exists = find(
+        sentInvitations,
+        (invitation) => invitation.receiversId === user._id
+      );
+      if (user._id === context.user._id || Boolean(exists)) {
+        return true;
+      }
+      return false;
+    });
 
-    return singleUsers;
+    return filteredUsers;
   }
 }
