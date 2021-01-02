@@ -23,7 +23,6 @@ export default class QueryClass {
     const receivedInvitations = await InvitationModel.find({
       receiversId: context.user._id,
     });
-    
 
     return {
       sentInvitations: sentInvitations,
@@ -33,9 +32,10 @@ export default class QueryClass {
 
   @Query((returns) => [User])
   async getSingleUsers(@Ctx() context: Context) {
-    const singleUsers = await (
-      await UserModel.find({ step: Step.CHOOSE_TEAM })
-    ).filter((user) => user._id != context.user._id);
+    const singleUsers = await await UserModel.find({ step: Step.CHOOSE_TEAM });
+
+    console.log(singleUsers);
+    console.log(context.user._id);
 
     return singleUsers;
   }

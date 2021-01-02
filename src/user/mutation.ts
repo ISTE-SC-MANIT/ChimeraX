@@ -23,7 +23,7 @@ export default class MutationClass {
     const user = await UserModel.findOneAndUpdate(
       { email: context.user.email },
       {
-        $set: { ...payload },
+        $set: { ...payload, step: Step.CHOOSE_TEAM },
       },
       {
         new: true,

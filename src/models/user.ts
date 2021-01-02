@@ -53,6 +53,10 @@ export class User {
   @prop({ default: "" })
   city: string;
 
+  @Field()
+  @prop({ default: "" })
+  resetPasswordLink: string;
+
   @Field((type) => Step)
   @prop({ enum: Step, default: Step.REGISTER })
   step: Step;
