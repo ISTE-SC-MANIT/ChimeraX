@@ -67,6 +67,10 @@ export const localLoginController = (
         errors: "User with that email does not exist. Please signup",
       });
     }
+
+    if (user.strategy !== "LOCAL") {
+      return res.status(403).json({ error: "Invalid login strategy" });
+    }
     // authenticate
     if (password != user.password) {
       return res.status(400).json({
@@ -83,13 +87,13 @@ export const localLoginController = (
         expiresIn: "7d",
       }
     );
-    const { _id, email } = user;
+    const { _id, email, step } = user;
 
     return res.json({
       token,
       user: {
         _id,
-
+        step,
         email,
       },
     });

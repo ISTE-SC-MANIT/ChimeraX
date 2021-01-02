@@ -23,6 +23,7 @@ export default class QueryClass {
     const receivedInvitations = await InvitationModel.find({
       receiversId: context.user._id,
     });
+    
 
     return {
       sentInvitations: sentInvitations,
