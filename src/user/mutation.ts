@@ -44,6 +44,7 @@ export default class MutationClass {
     @Arg("invitationInput") invitationInput: InvitationInput,
     @Ctx() context: Context
   ) {
+    const id = `invitation_${uuidv4()}`;
     const invitation = await new InvitationModel({
       receiversId: invitationInput.receiverId,
       receiversName: invitationInput.receiverName,
@@ -51,7 +52,8 @@ export default class MutationClass {
       sendersId: context.user._id,
       sendersEmail: context.user.email,
       sendersName: context.user.name,
-      id: `invitation_${uuidv4()}`,
+      id: id,
+      _id: id,
     }).save();
 
     return invitation;
@@ -84,14 +86,15 @@ export default class MutationClass {
       if (!invitation) {
         throw new Error("Invalid invitation Id");
       }
-
+      const teamId = `team_${uuidv4()}`;
       const team = await new TeamModel({
         teamLeadersId: senderId,
         teamHelpersId: receiverId,
         invitationId: invitation._id,
         city: sender.city,
         teamStatus: TeamStatus.TEAM,
-        id: `team_${uuidv4()}`,
+        id: teamId,
+        _id: teamId,
       }).save();
 
       await UserModel.findByIdAndUpdate(
@@ -147,14 +150,15 @@ export default class MutationClass {
       if (!user || user.teamStatus != TeamStatus.NOT_INITIALIZED) {
         throw new Error("Invalid User");
       }
-
+      const teamId = `team_${uuidv4()}`;
       const team = await new TeamModel({
         teamLeadersId: user._id,
         teamHelpersId: "",
         invitationId: "",
         city: user.city,
         teamStatus: TeamStatus.INDIVIDUAL,
-        id: `team_${uuidv4()}`,
+        id: teamId,
+        _id: teamId,
       }).save();
 
       await UserModel.findByIdAndUpdate(user._id, {
