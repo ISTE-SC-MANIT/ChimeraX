@@ -1,5 +1,7 @@
-import { InputType, Field, ObjectType } from "type-graphql";
+import { InputType, Field, ObjectType, registerEnumType } from "type-graphql";
 import { Invitation } from "../models/invitation";
+
+
 
 @InputType()
 export class UserInput {
@@ -38,6 +40,12 @@ export class AcceptInvitationInput {
 
   @Field()
   receiverId: string;
+}
+
+@InputType()
+export class DeleteInvitationInput {
+  @Field()
+  invitationId: string;
 }
 
 @ObjectType()

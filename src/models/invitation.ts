@@ -18,6 +18,10 @@ export class Invitation {
 
   @Field()
   @prop({ required: true })
+  id: string;
+
+  @Field()
+  @prop({ required: true })
   sendersId: string;
 
   @Field()

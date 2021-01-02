@@ -1,7 +1,7 @@
 import UserModel, { User } from "../models/user";
 import * as express from "express";
 import { extend } from "lodash";
-
+import { v4 as uuidv4 } from "uuid";
 import jwt from "jsonwebtoken";
 import sgMail from "@sendgrid/mail";
 import { OAuth2Client } from "google-auth-library";
@@ -31,6 +31,7 @@ export const localSignInController = async (
       strategy: "LOCAL",
       name: " ",
       college: "",
+      id: `usr_${uuidv4()}`,
     })
       .save()
       .then((user) => {
@@ -254,7 +255,8 @@ export const googleController = (
           } else {
             let password = email;
             user = new UserModel({
-              name: "n",
+              id: `usr_${uuidv4()}`,
+              name: "",
               email,
               password,
               strategy: "GOOGLE",
