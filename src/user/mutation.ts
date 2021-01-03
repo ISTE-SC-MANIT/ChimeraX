@@ -1,6 +1,7 @@
 import { Context } from "../index";
 import UserModel, { User, Step, Role } from "../models/user";
-import TeamModel, { Team, TeamStatus } from "../models/team";
+import TeamModel, { Team, TeamStatus, PaymentStatus } from "../models/team";
+import Razorpay from "razorpay";
 import "reflect-metadata";
 import { Resolver, Arg, Ctx, Mutation, Authorized } from "type-graphql";
 import {
@@ -8,9 +9,24 @@ import {
   InvitationInput,
   AcceptInvitationInput,
   DeleteInvitationInput,
+  Order,
+  PayOrderInput,
+  CreateOrderInput,
+  CreateQuestionInput,
+  SubmitQuizInput,
 } from "./registerInput";
 import InvitationModel, { Invitation, Status } from "../models/invitation";
 import { v4 as uuidv4 } from "uuid";
+import axios from "axios";
+import env from "dotenv";
+import QuestionModel, { Question } from "../models/questions";
+import { forEach } from "lodash";
+env.config();
+
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY,
+  key_secret: process.env.RAZORPAY_SECRET,
+});
 
 @Resolver()
 export default class MutationClass {
@@ -66,7 +82,7 @@ export default class MutationClass {
       const senderId = context.user._id;
       const receiverId = acceptInvitationInput.receiverId;
 
-      const sender = await UserModel.findById({ senderId });
+      const sender = await UserModel.findById(senderId);
       const receiver = await UserModel.findById(receiverId);
 
       if (
@@ -93,27 +109,22 @@ export default class MutationClass {
         teamStatus: TeamStatus.TEAM,
       }).save();
 
-      await UserModel.findByIdAndUpdate(
-        { senderId },
-        {
-          step: Step.PAYMENT,
-          teamId: team._id,
-          teamStatus: TeamStatus.TEAM,
-          role: Role.TEAM_LEADER,
-        }
-      );
-      await UserModel.findByIdAndUpdate(
-        { receiverId },
-        {
-          step: Step.PAYMENT,
-          teamId: team._id,
-          teamStatus: TeamStatus.TEAM,
-          role: Role.TEAM_HELPER,
-        }
-      );
+      await UserModel.findByIdAndUpdate(senderId, {
+        step: Step.PAYMENT,
+        teamId: team._id,
+        teamStatus: TeamStatus.TEAM,
+        role: Role.TEAM_LEADER,
+      });
+      await UserModel.findByIdAndUpdate(receiverId, {
+        step: Step.PAYMENT,
+        teamId: team._id,
+        teamStatus: TeamStatus.TEAM,
+        role: Role.TEAM_HELPER,
+      });
 
       return team;
-    } catch {
+    } catch (e) {
+      console.log(e);
       throw new Error("Something went wrong! try again");
     }
   }
@@ -166,4 +177,152 @@ export default class MutationClass {
       throw new Error("Something went wrong! try again");
     }
   }
+
+  @Mutation((returns) => Order)
+  async createOrder(
+    @Ctx() context: Context,
+    @Arg("createOrderInput") createOrderInput: CreateOrderInput
+  ) {
+    try {
+      const user = await UserModel.findById(context.user._id);
+      const team = await TeamModel.findById(user.teamId);
+
+      if (
+        !user ||
+        user.step != Step.PAYMENT ||
+        user.teamStatus === TeamStatus.NOT_INITIALIZED ||
+        user.role != Role.TEAM_LEADER ||
+        !team
+      ) {
+        throw new Error("Invalid User");
+      }
+      const options = {
+        amount: 100,
+        currency: "INR",
+        receipt: uuidv4(),
+        payment_capture: 1,
+      };
+      const response = await razorpay.orders.create(options);
+      await TeamModel.findByIdAndUpdate(user.teamId, {
+        teamName: createOrderInput.teamName,
+      });
+      return {
+        id: response.id,
+        currency: response.currency,
+        amount: response.amount,
+      };
+    } catch {
+      throw new Error("Something went wrong! try again");
+    }
+  }
+
+  @Mutation((returns) => Team)
+  async payOrder(
+    @Arg("payOrderInput") payOrderInput: PayOrderInput,
+    @Ctx() context: Context
+  ) {
+    try {
+      const user = await UserModel.findById(context.user._id);
+      const team = await TeamModel.findById(user.teamId);
+
+      if (
+        !user ||
+        user.step != Step.PAYMENT ||
+        user.teamStatus === TeamStatus.NOT_INITIALIZED ||
+        user.role != Role.TEAM_LEADER ||
+        !team
+      ) {
+        throw new Error("Invalid User");
+      }
+      const payment = await axios.get(
+        `https://${process.env.RAZORPAY_KEY}:${process.env.RAZORPAY_SECRET}@api.razorpay.com/v1/payments/${payOrderInput.paymentId}`
+      );
+
+      if (!payment.data.captured) {
+        throw new Error("Payment was not completed, please try again");
+      }
+
+      await UserModel.findByIdAndUpdate(team.teamLeadersId, {
+        step: Step.TEST,
+      });
+      if (team.teamStatus === TeamStatus.TEAM) {
+        await UserModel.findByIdAndUpdate(team.teamHelpersId, {
+          step: Step.TEST,
+        });
+      }
+
+      const updatedTeam = await TeamModel.findByIdAndUpdate(team._id, {
+        status: PaymentStatus.PAID,
+      });
+      return updatedTeam;
+    } catch (e) {
+      console.log(e);
+      throw new Error("Something went wrong! try again");
+    }
+  }
+
+  @Mutation((returns) => Question)
+  async createQuestion(
+    @Arg("createQuestionInput") createQuestionInput: CreateQuestionInput,
+    @Ctx() context: Context
+  ) {
+    try {
+      const userId = context.user._id;
+      const user = await UserModel.findById(userId);
+
+      if (user.role != Role.ADMIN) {
+        throw new Error("Unauthorized");
+      }
+      const {
+        question,
+        // questionAssets,
+        questionType,
+        answer,
+      } = createQuestionInput;
+      const newQuestion = await new QuestionModel({
+        question,
+        // questionAssets,
+        questionType,
+        answer,
+      }).save();
+
+      return newQuestion;
+    } catch (e) {
+      console.log(e);
+      throw new Error("Something went wrong! try again");
+    }
+  }
+
+  // @Mutation((returns) => Question)
+  // async submitQuiz(
+  //   @Arg("submitQuizInput") submitQuizInput: SubmitQuizInput,
+  //   @Ctx() context: Context
+  // ) {
+  //   try {
+  //     const userId = context.user._id;
+  //     const user = await UserModel.findById(userId);
+  //     const team = await TeamModel.findById(context.user.teamId);
+  //     const questions = await QuestionModel.find();
+
+  //     if (user.role != Role.TEAM_LEADER) {
+  //       throw new Error("Unauthorized");
+  //     }
+
+  //     let score = 0;
+
+  //     forEach(submitQuizInput.responses.responses, (response) => {
+  //       const rightAnswer = questions.find(
+  //         (question) => question._id === response.questionId
+  //       ).answer;
+  //       if (rightAnswer == response.answer) score = score + 1;
+  //     });
+
+  //     return team;
+  //   } catch (e) {
+  //     console.log(e);
+  //     throw new Error("Something went wrong! try again");
+  //   }
+  // }
+
+  // @Mutation((returns)=>Team)
 }

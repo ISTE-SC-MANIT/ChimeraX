@@ -13,6 +13,7 @@ export enum Role {
   TEAM_LEADER = "TEAM_LEADER",
   TEAM_HELPER = "TEAM_HELPER",
   NOT_INITIALIZED = "NOT_INITIALIZED",
+  ADMIN = "ADMIN",
 }
 registerEnumType(Step, {
   name: "Step",

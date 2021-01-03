@@ -1,4 +1,4 @@
-import { getModelForClass, prop, index } from "@typegoose/typegoose";
+import { getModelForClass, prop, index, Ref } from "@typegoose/typegoose";
 import { Field, ObjectType, Int, registerEnumType } from "type-graphql";
 
 export enum PaymentStatus {
@@ -19,6 +19,24 @@ registerEnumType(TeamStatus, {
   name: "TeamStatus",
   description: "tells wether player is individual or team",
 });
+
+@ObjectType()
+export class QuestionResponseItem {
+  @Field()
+  questionId: string;
+
+  @Field()
+  answer: string;
+
+  @Field()
+  questionNumber: number;
+}
+
+@ObjectType()
+export class QuestionResponse {
+  @Field((type) => [QuestionResponseItem])
+  responses: [QuestionResponseItem];
+}
 
 @ObjectType()
 export class Team {
@@ -55,6 +73,14 @@ export class Team {
   @Field((type) => PaymentStatus)
   @prop({ enum: PaymentStatus, default: PaymentStatus.UNPAID })
   status: PaymentStatus;
+
+  @Field()
+  @prop({ default: 0 })
+  score: number;
+
+  @Field((type) => QuestionResponse)
+  @prop({ ref: QuestionResponse })
+  response: Ref<QuestionResponse>;
 }
 
 export default getModelForClass(Team);

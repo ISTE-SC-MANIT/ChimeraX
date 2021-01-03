@@ -5,6 +5,8 @@ import { v4 as uuidv4 } from "uuid";
 import jwt from "jsonwebtoken";
 import sgMail from "@sendgrid/mail";
 import { OAuth2Client } from "google-auth-library";
+import env from "dotenv";
+env.config();
 
 sgMail.setApiKey(process.env.MAIL_KEY);
 
@@ -129,12 +131,15 @@ export const forgotPasswordController = (
       );
 
       const emailData = {
-        from: process.env.EMAIL_FROM,
+        from: {
+          name: "ISTE SC MANIT",
+          email: process.env.EMAIL_FROM,
+        },
         to: email,
         subject: `Password Reset link`,
         html: `
                       <h1>Please use the following link to reset your password</h1>
-                      <p>${process.env.CLIENT_URL}/users/password/reset/${token}</p>
+                      <p>${process.env.CLIENT_URL}/reset_password?token=${token}</p>
                       <hr />
                       <p>This email may contain sensetive information</p>
                       <p>${process.env.CLIENT_URL}</p>
@@ -162,6 +167,7 @@ export const forgotPasswordController = (
                 });
               })
               .catch((err) => {
+                console.log(err);
                 // console.log('SIGNUP EMAIL SENT ERROR', err)
                 return res.json({
                   message: err.message,

@@ -1,7 +1,7 @@
 import { InputType, Field, ObjectType, registerEnumType } from "type-graphql";
 import { Invitation } from "../models/invitation";
-
-
+import { QuestionType } from "../models/questions";
+import { QuestionResponse } from "../models/team";
 
 @InputType()
 export class UserInput {
@@ -48,6 +48,18 @@ export class DeleteInvitationInput {
   invitationId: string;
 }
 
+@InputType()
+export class PayOrderInput {
+  @Field()
+  paymentId: string;
+}
+
+@InputType()
+export class CreateOrderInput {
+  @Field()
+  teamName: string;
+}
+
 @ObjectType()
 export class InvitationResponse {
   @Field((type) => [Invitation])
@@ -55,4 +67,37 @@ export class InvitationResponse {
 
   @Field((type) => [Invitation])
   receivedInvitations: [Invitation];
+}
+
+@ObjectType()
+export class Order {
+  @Field()
+  id: string;
+
+  @Field()
+  amount: number;
+
+  @Field()
+  currency: string;
+}
+
+@InputType()
+export class CreateQuestionInput {
+  @Field()
+  question: string;
+
+  @Field()
+  questionType: QuestionType;
+
+  @Field()
+  answer: string;
+
+  @Field()
+  questionAssets: string;
+}
+
+@InputType()
+export class SubmitQuizInput {
+  @Field()
+  responses: QuestionResponse;
 }
