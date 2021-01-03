@@ -16,9 +16,8 @@ export class Invitation {
   @Field({ nullable: true })
   _id?: string;
 
-  @Field()
-  @prop({ required: true })
-  id: string;
+  @Field({ nullable: true })
+  id?: string;
 
   @Field()
   @prop({ required: true })

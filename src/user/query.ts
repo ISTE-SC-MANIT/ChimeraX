@@ -38,16 +38,26 @@ export default class QueryClass {
     const sentInvitations = await InvitationModel.find({
       sendersId: context.user._id,
     });
+    // console.log(singleUsers);
 
     const filteredUsers = filter(singleUsers, (user) => {
       const exists = find(
         sentInvitations,
-        (invitation) => invitation.receiversId === user._id
+        (invitation) => invitation.receiversId === user._id.toString()
       );
-      if (user._id === context.user._id || Boolean(exists)) {
-        return true;
+      console.log(
+        context.user._id,
+        user._id,
+        context.user._id.toString() == user._id
+      );
+      if (
+        user._id.toString() === context.user._id.toString() ||
+        Boolean(exists)
+      ) {
+        console.log(user, context.user);
+        return false;
       }
-      return false;
+      return true;
     });
 
     return filteredUsers;

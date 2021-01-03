@@ -25,15 +25,13 @@ export const localSignInController = async (
   });
 
   try {
-    const userId = `usr_${uuidv4()}`;
     await new UserModel({
       email,
       password,
-      _id: userId,
+      id: uuidv4(),
       strategy: "LOCAL",
       name: " ",
       college: "",
-      id: userId,
     })
       .save()
       .then((user) => {
@@ -256,10 +254,8 @@ export const googleController = (
             });
           } else {
             let password = email;
-            const id = `usr_${uuidv4()}`;
+
             user = new UserModel({
-              id: id,
-              _id: id,
               name: "",
               email,
               password,
