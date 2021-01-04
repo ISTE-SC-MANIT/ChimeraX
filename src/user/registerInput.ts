@@ -2,6 +2,7 @@ import { InputType, Field, ObjectType, registerEnumType } from "type-graphql";
 import { Invitation } from "../models/invitation";
 import { QuestionType } from "../models/questions";
 import { QuestionResponse } from "../models/team";
+import { type } from "os";
 
 @InputType()
 export class UserInput {
@@ -97,7 +98,40 @@ export class CreateQuestionInput {
 }
 
 @InputType()
-export class SubmitQuizInput {
+export class QuestionAnswer {
   @Field()
-  responses: QuestionResponse;
+  questionId: string;
+
+  @Field()
+  answer: string;
+
+  @Field()
+  questionNumber: number;
+}
+
+@InputType()
+export class SubmitQuizInput {
+  @Field((type) => [QuestionAnswer])
+  responses: [QuestionAnswer];
+}
+
+@ObjectType()
+export class Member {
+  @Field()
+  userId: string;
+
+  @Field()
+  name: string;
+
+  @Field()
+  email: string;
+}
+
+@ObjectType()
+export class TeamResponse {
+  @Field((type) => Member)
+  teamLeader: Member;
+
+  @Field((type) => Member, { nullable: true })
+  teamHelper: Member;
 }

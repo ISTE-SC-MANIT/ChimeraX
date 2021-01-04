@@ -1,6 +1,11 @@
 import { Context } from "../index";
 import UserModel, { User, Step, Role } from "../models/user";
-import TeamModel, { Team, TeamStatus, PaymentStatus } from "../models/team";
+import TeamModel, {
+  Team,
+  TeamStatus,
+  PaymentStatus,
+  QuizStatus,
+} from "../models/team";
 import Razorpay from "razorpay";
 import "reflect-metadata";
 import { Resolver, Arg, Ctx, Mutation, Authorized } from "type-graphql";
@@ -293,36 +298,43 @@ export default class MutationClass {
     }
   }
 
-  // @Mutation((returns) => Question)
-  // async submitQuiz(
-  //   @Arg("submitQuizInput") submitQuizInput: SubmitQuizInput,
-  //   @Ctx() context: Context
-  // ) {
-  //   try {
-  //     const userId = context.user._id;
-  //     const user = await UserModel.findById(userId);
-  //     const team = await TeamModel.findById(context.user.teamId);
-  //     const questions = await QuestionModel.find();
+  @Mutation((returns) => Team)
+  async submitQuiz(
+    @Arg("submitQuizInput") submitQuizInput: SubmitQuizInput,
+    @Ctx() context: Context
+  ) {
+    try {
+      const userId = context.user._id;
+      const user = await UserModel.findById(userId);
+      const team = await TeamModel.findById(context.user.teamId);
+      const questions = await QuestionModel.find();
 
-  //     if (user.role != Role.TEAM_LEADER) {
-  //       throw new Error("Unauthorized");
-  //     }
+      if (team.quizStatus === QuizStatus.SUBMITTED) {
+        throw new Error("Quiz has been already submitted");
+      }
 
-  //     let score = 0;
+      if (user.role != Role.TEAM_LEADER) {
+        throw new Error("Unauthorized");
+      }
 
-  //     forEach(submitQuizInput.responses.responses, (response) => {
-  //       const rightAnswer = questions.find(
-  //         (question) => question._id === response.questionId
-  //       ).answer;
-  //       if (rightAnswer == response.answer) score = score + 1;
-  //     });
+      let score = 0;
 
-  //     return team;
-  //   } catch (e) {
-  //     console.log(e);
-  //     throw new Error("Something went wrong! try again");
-  //   }
-  // }
+      forEach(submitQuizInput.responses, (response) => {
+        const rightAnswer = questions.find(
+          (question) => question._id === response.questionId
+        ).answer;
+        if (rightAnswer == response.answer) score = score + 1;
+      });
 
-  // @Mutation((returns)=>Team)
+      const updatedTeam = TeamModel.findByIdAndUpdate(team._id, {
+        score,
+        quizStatus: QuizStatus.SUBMITTED,
+      });
+
+      return updatedTeam;
+    } catch (e) {
+      console.log(e);
+      throw new Error("Something went wrong! try again");
+    }
+  }
 }

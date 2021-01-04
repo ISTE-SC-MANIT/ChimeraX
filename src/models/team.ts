@@ -20,6 +20,15 @@ registerEnumType(TeamStatus, {
   description: "tells wether player is individual or team",
 });
 
+export enum QuizStatus {
+  SUBMITTED = "SUBMITTED",
+  NOT_SUBMITTED = "NOT_SUBMITTED",
+}
+registerEnumType(QuizStatus, {
+  name: "QuizStatus",
+  description: "tells wether quiz is submitted or not",
+});
+
 @ObjectType()
 export class QuestionResponseItem {
   @Field()
@@ -73,6 +82,10 @@ export class Team {
   @Field((type) => PaymentStatus)
   @prop({ enum: PaymentStatus, default: PaymentStatus.UNPAID })
   status: PaymentStatus;
+
+  @Field((type) => QuizStatus)
+  @prop({ enum: QuizStatus, default: QuizStatus.NOT_SUBMITTED })
+  quizStatus: QuizStatus;
 
   @Field()
   @prop({ default: 0 })

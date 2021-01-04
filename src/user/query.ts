@@ -2,10 +2,14 @@ import { Context } from "../index";
 import UserModel, { User, Step } from "../models/user";
 import "reflect-metadata";
 import { Resolver, Query, Ctx, Authorized } from "type-graphql";
-import { InvitationResponse } from "./registerInput";
-import InvitationModel from "../models/invitation";
+import { InvitationResponse, TeamResponse } from "./registerInput";
+import InvitationModel, { Status } from "../models/invitation";
+import QuestionModel from "../models/questions";
+import TeamModel, { TeamStatus } from "../models/team";
 import { filter, find } from "lodash";
 import invitation from "../models/invitation";
+import { Question } from "../models/questions";
+import user from "../models/user";
 
 @Resolver()
 export default class QueryClass {
@@ -38,7 +42,6 @@ export default class QueryClass {
     const sentInvitations = await InvitationModel.find({
       sendersId: context.user._id,
     });
-    // console.log(singleUsers);
 
     const filteredUsers = filter(singleUsers, (user) => {
       const exists = find(
@@ -61,5 +64,49 @@ export default class QueryClass {
     });
 
     return filteredUsers;
+  }
+
+  @Query((returns) => [Question])
+  async getQuestions(@Ctx() context: Context) {
+    if (context.user.step != Step.TEST) {
+      throw new Error("Please complete payment to give the test");
+    }
+    const questions = await QuestionModel.find({ step: Step.CHOOSE_TEAM });
+
+    return questions.map((question) => {
+      return { ...question, answer: "" };
+    });
+  }
+
+  @Query((returns) => TeamResponse)
+  async getTeamDetails(@Ctx() context: Context) {
+    if (context.user.step != Step.PAYMENT) {
+      throw new Error("Invalid Step");
+    }
+    const team = await TeamModel.findById(context.user.teamId);
+    const leader = await UserModel.findById(team.teamLeadersId);
+    const helper = await UserModel.findById(team.teamHelpersId);
+
+    if (team.teamStatus === TeamStatus.INDIVIDUAL) {
+      return {
+        teamLeader: {
+          id: team.teamLeadersId,
+          name: leader.name,
+          email: leader.email,
+        },
+      };
+    }
+    return {
+      teamLeader: {
+        userId: team.teamLeadersId,
+        name: leader.name,
+        email: leader.email,
+      },
+      teamHelper: {
+        userId: team.teamHelpersId,
+        name: helper.name,
+        email: helper.email,
+      },
+    };
   }
 }
