@@ -71,11 +71,21 @@ export default class QueryClass {
     if (context.user.step != Step.TEST) {
       throw new Error("Please complete payment to give the test");
     }
-    const questions = await QuestionModel.find({ step: Step.CHOOSE_TEAM });
+    const questions = await QuestionModel.find();
 
-    return questions.map((question) => {
-      return { ...question, answer: "" };
+    const a = await questions.map((question) => {
+      return {
+        question: question.question,
+        answer: "",
+        questionNo: question.questionNo,
+        questionType: question.questionType,
+        questionAsset: question.questionAssets,
+        id: question._id,
+      };
     });
+
+    console.log(a);
+    return a;
   }
 
   @Query((returns) => TeamResponse)

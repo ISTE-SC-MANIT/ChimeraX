@@ -281,12 +281,14 @@ export default class MutationClass {
       const {
         question,
         // questionAssets,
+        questionNumber,
         questionType,
         answer,
       } = createQuestionInput;
       const newQuestion = await new QuestionModel({
         question,
         // questionAssets,
+        questionNo: questionNumber,
         questionType,
         answer,
       }).save();
@@ -294,7 +296,7 @@ export default class MutationClass {
       return newQuestion;
     } catch (e) {
       console.log(e);
-      throw new Error("Something went wrong! try again");
+      throw new Error(e);
     }
   }
 

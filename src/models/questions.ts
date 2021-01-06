@@ -10,8 +10,6 @@ registerEnumType(QuestionType, {
   description: "type of question",
 });
 
-
-
 @ObjectType()
 export class Question {
   @Field({ nullable: true })
@@ -31,6 +29,10 @@ export class Question {
   @Field()
   @prop({ required: true })
   answer?: string;
+
+  @Field()
+  @prop({ required: true })
+  questionNo?: number;
 
   @Field((type) => QuestionType)
   @prop({ enum: QuestionType, required: true })

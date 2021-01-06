@@ -71,6 +71,24 @@ export class InvitationResponse {
 }
 
 @ObjectType()
+export class GetQuestionResponse {
+  @Field({ nullable: true })
+  _id?: string;
+
+  @Field({ nullable: true })
+  id?: string;
+
+  @Field()
+  question: string;
+
+  @Field()
+  questionAssets?: string;
+
+  @Field()
+  questionNo?: number;
+}
+
+@ObjectType()
 export class Order {
   @Field()
   id: string;
@@ -94,6 +112,9 @@ export class CreateQuestionInput {
   answer: string;
 
   @Field()
+  questionNumber: number;
+
+  @Field({ nullable: true })
   questionAssets: string;
 }
 
