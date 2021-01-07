@@ -166,7 +166,7 @@ export default class MutationClass {
       const team = await new TeamModel({
         teamLeadersId: user._id,
         teamHelpersId: "",
-        invitationId: "",
+        invitationId: user._id,
         city: user.city,
         teamStatus: TeamStatus.INDIVIDUAL,
       }).save();
@@ -178,7 +178,8 @@ export default class MutationClass {
         role: Role.TEAM_LEADER,
       });
       return team;
-    } catch {
+    } catch (e) {
+      console.log(e);
       throw new Error("Something went wrong! try again");
     }
   }
@@ -353,7 +354,7 @@ export default class MutationClass {
       const userId = context.user._id;
       const currentTime = new Date().toISOString();
       const user = await UserModel.findByIdAndUpdate(userId, {
-        userQuizStatus: UserQuizStatus.STARTED,
+        quizStatus: UserQuizStatus.STARTED,
         quizStartTime: currentTime,
       });
 

@@ -99,18 +99,19 @@ export default class QueryClass {
     }
     const team = await TeamModel.findById(context.user.teamId);
     const leader = await UserModel.findById(team.teamLeadersId);
-    const helper = await UserModel.findById(team.teamHelpersId);
-
+    console.log(team);
     if (team.teamStatus === TeamStatus.INDIVIDUAL) {
       return {
         teamLeader: {
-          id: team.teamLeadersId,
+          userId: team.teamLeadersId,
           name: leader.name,
           email: leader.email,
         },
         status: team.teamStatus,
       };
     }
+    const helper = await UserModel.findById(team.teamHelpersId);
+
     return {
       teamLeader: {
         userId: team.teamLeadersId,
@@ -131,15 +132,16 @@ export default class QueryClass {
     try {
       const user = await UserModel.findById(context.user._id);
 
-      if (user.quizStatus != UserQuizStatus.STARTED) {
-        throw new Error("Quiz has ended or not started");
-      }
+      // if (user.quizStatus != UserQuizStatus.STARTED) {
+      //   throw new Error("Quiz has ended or not started");
+      // }
 
       return {
         quizStartTime: user.quizStartTime,
-        UserQuizStatus: user.quizStatus,
+        userQuizStatus: user.quizStatus,
       };
     } catch (e) {
+      console.log(e);
       throw new Error("Something went wrong");
     }
   }
