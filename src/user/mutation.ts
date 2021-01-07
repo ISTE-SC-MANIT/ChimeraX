@@ -107,8 +107,8 @@ export default class MutationClass {
       }
 
       const team = await new TeamModel({
-        teamLeadersId: senderId,
-        teamHelpersId: receiverId,
+        teamLeadersId: receiverId,
+        teamHelpersId: senderId,
         invitationId: invitation._id,
         city: sender.city,
         teamStatus: TeamStatus.TEAM,
@@ -118,13 +118,13 @@ export default class MutationClass {
         step: Step.PAYMENT,
         teamId: team._id,
         teamStatus: TeamStatus.TEAM,
-        role: Role.TEAM_LEADER,
+        role: Role.TEAM_HELPER,
       });
       await UserModel.findByIdAndUpdate(receiverId, {
         step: Step.PAYMENT,
         teamId: team._id,
         teamStatus: TeamStatus.TEAM,
-        role: Role.TEAM_HELPER,
+        role: Role.TEAM_LEADER,
       });
 
       return team;
@@ -250,12 +250,12 @@ export default class MutationClass {
 
       await UserModel.findByIdAndUpdate(team.teamLeadersId, {
         step: Step.TEST,
-        paymentId: "",
+        paymentId: payOrderInput.paymentId,
       });
       if (team.teamStatus === TeamStatus.TEAM) {
         await UserModel.findByIdAndUpdate(team.teamHelpersId, {
           step: Step.TEST,
-          paymentId: "",
+          paymentId: payOrderInput.paymentId,
         });
       }
 

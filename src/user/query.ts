@@ -72,9 +72,9 @@ export default class QueryClass {
 
   @Query((returns) => [Question])
   async getQuestions(@Ctx() context: Context) {
-    // if (context.user.step != Step.TEST) {
-    //   throw new Error("Please complete payment to give the test");
-    // }
+    if (context.user.step != Step.TEST) {
+      throw new Error("Please complete payment to give the test");
+    }
     const questions = await QuestionModel.find();
 
     const a = await questions.map((question) => {
@@ -132,9 +132,9 @@ export default class QueryClass {
     try {
       const user = await UserModel.findById(context.user._id);
 
-      // if (user.quizStatus != UserQuizStatus.STARTED) {
-      //   throw new Error("Quiz has ended or not started");
-      // }
+      if (user.quizStatus != UserQuizStatus.STARTED) {
+        throw new Error("Quiz has ended or not started");
+      }
 
       return {
         quizStartTime: user.quizStartTime,
