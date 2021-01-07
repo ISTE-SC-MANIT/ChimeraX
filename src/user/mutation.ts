@@ -203,7 +203,7 @@ export default class MutationClass {
         throw new Error("Invalid User");
       }
       const options = {
-        amount: 100,
+        amount: 10000,
         currency: "INR",
         receipt: uuidv4(),
         payment_capture: 1,
