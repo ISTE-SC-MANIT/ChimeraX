@@ -1,8 +1,9 @@
 import { InputType, Field, ObjectType, registerEnumType } from "type-graphql";
 import { Invitation } from "../models/invitation";
 import { QuestionType } from "../models/questions";
-import { QuestionResponse } from "../models/team";
+import { QuestionResponse, TeamStatus } from "../models/team";
 import { type } from "os";
+import { UserQuizStatus } from "../models/user";
 
 @InputType()
 export class UserInput {
@@ -16,7 +17,7 @@ export class UserInput {
   year: number;
 
   @Field({ nullable: true })
-  country: string;
+  city: string;
 
   @Field({ nullable: true })
   college: string;
@@ -155,4 +156,22 @@ export class TeamResponse {
 
   @Field((type) => Member, { nullable: true })
   teamHelper: Member;
+
+  @Field((type) => TeamStatus)
+  status: TeamStatus;
+}
+
+@ObjectType()
+export class QuizDetailsResponse {
+  @Field()
+  quizStartTime: string;
+
+  @Field((type) => UserQuizStatus)
+  userQuizStatus: UserQuizStatus;
+}
+
+@ObjectType()
+export class StartQuizResponse {
+  @Field()
+  quizStartTime: string;
 }

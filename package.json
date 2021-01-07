@@ -14,9 +14,11 @@
   "license": "ISC",
   "dependencies": {
     "@sendgrid/mail": "^7.4.0",
+    "@types/bcrypt": "^3.0.0",
     "@types/express-jwt": "^6.0.0",
     "@types/lodash": "^4.14.166",
     "axios": "^0.21.1",
+    "bcrypt": "^5.0.0",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",

@@ -1,8 +1,12 @@
 import { Context } from "../index";
-import UserModel, { User, Step } from "../models/user";
+import UserModel, { User, Step, UserQuizStatus } from "../models/user";
 import "reflect-metadata";
 import { Resolver, Query, Ctx, Authorized } from "type-graphql";
-import { InvitationResponse, TeamResponse } from "./registerInput";
+import {
+  InvitationResponse,
+  TeamResponse,
+  QuizDetailsResponse,
+} from "./registerInput";
 import InvitationModel, { Status } from "../models/invitation";
 import QuestionModel from "../models/questions";
 import TeamModel, { TeamStatus } from "../models/team";
@@ -68,9 +72,9 @@ export default class QueryClass {
 
   @Query((returns) => [Question])
   async getQuestions(@Ctx() context: Context) {
-    if (context.user.step != Step.TEST) {
-      throw new Error("Please complete payment to give the test");
-    }
+    // if (context.user.step != Step.TEST) {
+    //   throw new Error("Please complete payment to give the test");
+    // }
     const questions = await QuestionModel.find();
 
     const a = await questions.map((question) => {
@@ -104,6 +108,7 @@ export default class QueryClass {
           name: leader.name,
           email: leader.email,
         },
+        status: team.teamStatus,
       };
     }
     return {
@@ -112,11 +117,30 @@ export default class QueryClass {
         name: leader.name,
         email: leader.email,
       },
+      status: team.teamStatus,
       teamHelper: {
         userId: team.teamHelpersId,
         name: helper.name,
         email: helper.email,
       },
     };
+  }
+
+  @Query((returns) => QuizDetailsResponse)
+  async getQuizDetails(@Ctx() context: Context) {
+    try {
+      const user = await UserModel.findById(context.user._id);
+
+      if (user.quizStatus != UserQuizStatus.STARTED) {
+        throw new Error("Quiz has ended or not started");
+      }
+
+      return {
+        quizStartTime: user.quizStartTime,
+        UserQuizStatus: user.quizStatus,
+      };
+    } catch (e) {
+      throw new Error("Something went wrong");
+    }
   }
 }

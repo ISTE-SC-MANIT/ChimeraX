@@ -6,9 +6,12 @@ import jwt from "jsonwebtoken";
 import sgMail from "@sendgrid/mail";
 import { OAuth2Client } from "google-auth-library";
 import env from "dotenv";
+import bcrypt from "bcrypt";
 env.config();
 
 sgMail.setApiKey(process.env.MAIL_KEY);
+
+export const salt = bcrypt.genSaltSync(4);
 
 export const localSignInController = async (
   req: express.Request,
@@ -16,6 +19,7 @@ export const localSignInController = async (
 ) => {
   console.log(req.body);
   const { email, password } = req.body;
+  const newPassword = bcrypt.hashSync(password, salt);
   UserModel.findOne({
     email,
   }).exec((err: any, user: any) => {
@@ -29,7 +33,7 @@ export const localSignInController = async (
   try {
     await new UserModel({
       email,
-      password,
+      password: newPassword,
       id: uuidv4(),
       strategy: "LOCAL",
       name: " ",
@@ -67,17 +71,20 @@ export const localLoginController = (
   }).exec((err, user) => {
     if (err || !user) {
       return res.status(400).json({
-        errors: "User with that email does not exist. Please signup",
+        errors:
+          "User with this email does not exist. Please signup to continue",
       });
     }
 
     if (user.strategy !== "LOCAL") {
-      return res.status(403).json({ error: "Invalid login strategy" });
+      return res.status(403).json({
+        errors: "User might have been signed up from different platform",
+      });
     }
     // authenticate
-    if (password != user.password) {
+    if (bcrypt.compareSync(password, user.password)) {
       return res.status(400).json({
-        errors: "Email and password do not match",
+        errors: "Incorrect password",
       });
     }
     // generate a token and send to client
@@ -215,7 +222,7 @@ export const updatePassword = (req: express.Request, res: express.Response) => {
             user.save((err: any, result: any) => {
               if (err) {
                 return res.status(400).json({
-                  error: "Error resetting user password",
+                  errors: "Error resetting user password",
                 });
               }
               res.json({

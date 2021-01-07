@@ -15,6 +15,13 @@ export enum Role {
   NOT_INITIALIZED = "NOT_INITIALIZED",
   ADMIN = "ADMIN",
 }
+
+export enum UserQuizStatus {
+  NOT_STARTED = "NOT_STARTED",
+  STARTED = "STARTED",
+  ENDED = "ENDED",
+}
+
 registerEnumType(Step, {
   name: "Step",
   description: "Step on which user is present",
@@ -23,6 +30,11 @@ registerEnumType(Step, {
 registerEnumType(Role, {
   name: "Role",
   description: "role of user in team",
+});
+
+registerEnumType(UserQuizStatus, {
+  name: "UserQuizStatus",
+  description: "status of quiz",
 });
 
 @ObjectType()
@@ -88,6 +100,26 @@ export class User {
   @Field((type) => TeamStatus)
   @prop({ enum: TeamStatus, default: TeamStatus.NOT_INITIALIZED })
   teamStatus: TeamStatus;
+
+  @Field((type) => UserQuizStatus)
+  @prop({ enum: UserQuizStatus, default: UserQuizStatus.NOT_STARTED })
+  quizStatus: UserQuizStatus;
+
+  @Field()
+  @prop({ default: "" })
+  quizStartTime: string;
+
+  @Field()
+  @prop({ default: "" })
+  quizEndTime: string;
+
+  @Field()
+  @prop({ default: 30 })
+  timeLeft: number;
+
+  @Field()
+  @prop({ default: "" })
+  metadata: string;
 }
 
 export default getModelForClass(User);

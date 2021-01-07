@@ -1,5 +1,5 @@
 import { Context } from "../index";
-import UserModel, { User, Step, Role } from "../models/user";
+import UserModel, { User, Step, Role, UserQuizStatus } from "../models/user";
 import TeamModel, {
   Team,
   TeamStatus,
@@ -19,6 +19,7 @@ import {
   CreateOrderInput,
   CreateQuestionInput,
   SubmitQuizInput,
+  StartQuizResponse,
 } from "./registerInput";
 import InvitationModel, { Invitation, Status } from "../models/invitation";
 import { v4 as uuidv4 } from "uuid";
@@ -53,7 +54,6 @@ export default class MutationClass {
         new: true,
       }
     );
-    console.log(user);
 
     if (!user) return null;
 
@@ -309,6 +309,14 @@ export default class MutationClass {
       const userId = context.user._id;
       const user = await UserModel.findById(userId);
       const team = await TeamModel.findById(context.user.teamId);
+      await UserModel.findByIdAndUpdate(userId, {
+        quizEndTime: new Date().toISOString(),
+        quizStatus: UserQuizStatus.ENDED,
+      });
+      if (user.role === Role.TEAM_HELPER) {
+        return team;
+      }
+
       const questions = await QuestionModel.find();
 
       if (team.quizStatus === QuizStatus.SUBMITTED) {
@@ -334,6 +342,22 @@ export default class MutationClass {
       });
 
       return updatedTeam;
+    } catch (e) {
+      console.log(e);
+      throw new Error("Something went wrong! try again");
+    }
+  }
+  @Mutation((returns) => StartQuizResponse)
+  async startQuiz(@Ctx() context: Context) {
+    try {
+      const userId = context.user._id;
+      const currentTime = new Date().toISOString();
+      const user = await UserModel.findByIdAndUpdate(userId, {
+        userQuizStatus: UserQuizStatus.STARTED,
+        quizStartTime: currentTime,
+      });
+
+      return { quizStartTime: user.quizStartTime };
     } catch (e) {
       console.log(e);
       throw new Error("Something went wrong! try again");
