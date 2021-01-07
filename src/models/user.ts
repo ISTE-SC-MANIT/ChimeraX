@@ -111,6 +111,10 @@ export class User {
 
   @Field()
   @prop({ default: "" })
+  paymentId: string;
+
+  @Field()
+  @prop({ default: "" })
   quizEndTime: string;
 
   @Field()

@@ -250,10 +250,12 @@ export default class MutationClass {
 
       await UserModel.findByIdAndUpdate(team.teamLeadersId, {
         step: Step.TEST,
+        paymentId: "",
       });
       if (team.teamStatus === TeamStatus.TEAM) {
         await UserModel.findByIdAndUpdate(team.teamHelpersId, {
           step: Step.TEST,
+          paymentId: "",
         });
       }
 

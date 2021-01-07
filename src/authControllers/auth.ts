@@ -82,7 +82,7 @@ export const localLoginController = (
       });
     }
     // authenticate
-       if (!bcrypt.compareSync(password, user.password)) {
+    if (!bcrypt.compareSync(password, user.password)) {
       return res.status(400).json({
         errors: "Incorrect password",
       });
@@ -121,7 +121,7 @@ export const forgotPasswordController = (
       email,
     },
     (err: any, user: any) => {
-      if (err || !user) {
+      if (err || !user || user.strategy === "GOOGLE") {
         return res.status(400).json({
           error: "User with that email does not exist",
         });
@@ -213,7 +213,7 @@ export const updatePassword = (req: express.Request, res: express.Response) => {
             }
 
             const updatedFields = {
-              password: newPassword,
+              password: bcrypt.hashSync(newPassword, salt),
               resetPasswordLink: "",
             };
 
