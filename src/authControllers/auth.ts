@@ -82,7 +82,7 @@ export const localLoginController = (
       });
     }
     // authenticate
-    if (bcrypt.compareSync(password, user.password)) {
+       if (!bcrypt.compareSync(password, user.password)) {
       return res.status(400).json({
         errors: "Incorrect password",
       });
