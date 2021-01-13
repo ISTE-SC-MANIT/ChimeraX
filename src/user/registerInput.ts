@@ -1,6 +1,6 @@
 import { InputType, Field, ObjectType, registerEnumType } from "type-graphql";
 import { Invitation } from "../models/invitation";
-import { QuestionType } from "../models/questions";
+import { QuestionAnswerType, QuestionType } from "../models/questions";
 import { QuestionResponse, TeamStatus } from "../models/team";
 import { type } from "os";
 import { UserQuizStatus } from "../models/user";
@@ -110,13 +110,25 @@ export class CreateQuestionInput {
   questionType: QuestionType;
 
   @Field()
+  questionAnswerType: QuestionAnswerType;
+
+  @Field()
   answer: string;
+
+  @Field({ nullable: true })
+  answer2: string;
 
   @Field()
   questionNumber: number;
 
   @Field({ nullable: true })
   questionAssets: string;
+
+  @Field()
+  firstAnswerLabel: string;
+
+  @Field({ nullable: true })
+  secondAnswerLabel: string;
 }
 
 @InputType()

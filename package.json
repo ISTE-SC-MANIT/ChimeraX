@@ -8,7 +8,8 @@
     "dev": "nodemon",
     "format": "prettier --write \"src/**/*!(.d).ts\"",
     "watch": "nodemon src/index.ts",
-    "build": "tsc"
+    "build": "tsc",
+    "start": "node out/index.js"
   },
   "author": "Devansh <kdevanshsharma23@gmail.com>",
   "license": "ISC",

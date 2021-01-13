@@ -10,6 +10,15 @@ registerEnumType(QuestionType, {
   description: "type of question",
 });
 
+export enum QuestionAnswerType {
+  SINGLE = "SINGLE",
+  DOUBLE = "DOUBLE",
+}
+registerEnumType(QuestionAnswerType, {
+  name: "QuestionAnswerType",
+  description: "type of answer question is having",
+});
+
 @ObjectType()
 export class Question {
   @Field({ nullable: true })
@@ -22,13 +31,25 @@ export class Question {
   @prop({ required: true })
   question: string;
 
-  @Field()
+  @Field({ nullable: true })
   @prop({ default: "" })
   questionAssets?: string;
 
   @Field()
   @prop({ required: true })
+  firstAnswerLabel?: string;
+
+  @Field({ nullable: true })
+  @prop({ default: "" })
+  secondAnswerLabel?: string;
+
+  @Field()
+  @prop({ required: true })
   answer?: string;
+
+  @Field({ nullable: true })
+  @prop({ default: "" })
+  answer2?: string;
 
   @Field()
   @prop({ required: true })
@@ -37,6 +58,10 @@ export class Question {
   @Field((type) => QuestionType)
   @prop({ enum: QuestionType, required: true })
   questionType: QuestionType;
+
+  @Field((type) => QuestionAnswerType)
+  @prop({ enum: QuestionAnswerType, required: true })
+  questionAnswerType: QuestionType;
 }
 
 export default getModelForClass(Question);

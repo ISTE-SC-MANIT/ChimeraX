@@ -22,6 +22,7 @@ export default class QueryClass {
   async viewer(@Ctx() context: Context) {
     const user = await UserModel.findOne({ email: context.user.email });
     user.id = user._id;
+    user.password = "";
     return user;
   }
 
@@ -85,6 +86,9 @@ export default class QueryClass {
         questionType: question.questionType,
         questionAsset: question.questionAssets,
         id: question._id,
+        questionAnswerType: question.questionAnswerType,
+        firstAnswerLabel: question.firstAnswerLabel,
+        secondAnswerLabel: question.secondAnswerLabel,
       };
     });
 

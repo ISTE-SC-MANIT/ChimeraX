@@ -283,17 +283,26 @@ export default class MutationClass {
       }
       const {
         question,
-        // questionAssets,
+        questionAssets,
         questionNumber,
         questionType,
         answer,
+        questionAnswerType,
+        firstAnswerLabel,
+        secondAnswerLabel,
+        answer2
       } = createQuestionInput;
       const newQuestion = await new QuestionModel({
         question,
         // questionAssets,
         questionNo: questionNumber,
         questionType,
+        questionAssets,
+        questionAnswerType,
+        firstAnswerLabel,
+        secondAnswerLabel,
         answer,
+        answer2
       }).save();
 
       return newQuestion;
@@ -312,6 +321,7 @@ export default class MutationClass {
       const userId = context.user._id;
       const user = await UserModel.findById(userId);
       const team = await TeamModel.findById(context.user.teamId);
+
       await UserModel.findByIdAndUpdate(userId, {
         quizEndTime: new Date().toISOString(),
         quizStatus: UserQuizStatus.ENDED,
@@ -321,6 +331,7 @@ export default class MutationClass {
       }
 
       const questions = await QuestionModel.find();
+      console.log("q", questions);
 
       if (team.quizStatus === QuizStatus.SUBMITTED) {
         throw new Error("Quiz has been already submitted");
@@ -334,8 +345,10 @@ export default class MutationClass {
 
       forEach(submitQuizInput.responses, (response) => {
         const rightAnswer = questions.find(
-          (question) => question._id === response.questionId
+          (question) => question.id === response.questionId
         ).answer;
+        //check both answers
+        console.log("answer", rightAnswer);
         if (rightAnswer == response.answer) score = score + 1;
       });
 
