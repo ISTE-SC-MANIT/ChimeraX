@@ -62,7 +62,7 @@ export default class QueryClass {
         user._id.toString() === context.user._id.toString() ||
         Boolean(exists)
       ) {
-        console.log(user, context.user);
+        
         return false;
       }
       return true;
@@ -103,7 +103,7 @@ export default class QueryClass {
     }
     const team = await TeamModel.findById(context.user.teamId);
     const leader = await UserModel.findById(team.teamLeadersId);
-    console.log(team);
+ 
     if (team.teamStatus === TeamStatus.INDIVIDUAL) {
       return {
         teamLeader: {
@@ -136,9 +136,9 @@ export default class QueryClass {
     try {
       const user = await UserModel.findById(context.user._id);
 
-      if (user.quizStatus != UserQuizStatus.STARTED) {
-        throw new Error("Quiz has ended or not started");
-      }
+      // if (user.quizStatus != UserQuizStatus.STARTED) {
+      //   throw new Error("Quiz has ended or not started");
+      // }
 
       return {
         quizStartTime: user.quizStartTime,

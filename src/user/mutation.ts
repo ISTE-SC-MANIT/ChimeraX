@@ -20,13 +20,20 @@ import {
   CreateQuestionInput,
   SubmitQuizInput,
   StartQuizResponse,
+  CreateReferralCodeResponse,
+  CreateReferralCodeInput,
 } from "./registerInput";
+import ReferralCodeModel, { ReferralCode } from "../models/referralCodes";
 import InvitationModel, { Invitation, Status } from "../models/invitation";
 import { v4 as uuidv4 } from "uuid";
 import axios from "axios";
 import env from "dotenv";
-import QuestionModel, { Question } from "../models/questions";
+import QuestionModel, {
+  Question,
+  QuestionAnswerType,
+} from "../models/questions";
 import { forEach } from "lodash";
+import { updateSpreadSheet } from "./utils";
 env.config();
 
 const razorpay = new Razorpay({
@@ -158,7 +165,6 @@ export default class MutationClass {
   async playAsIndividual(@Ctx() context: Context) {
     try {
       const user = await UserModel.findById(context.user._id);
-
       if (!user || user.teamStatus != TeamStatus.NOT_INITIALIZED) {
         throw new Error("Invalid User");
       }
@@ -202,6 +208,19 @@ export default class MutationClass {
       ) {
         throw new Error("Invalid User");
       }
+
+      if (Boolean(createOrderInput.referralCode)) {
+        const code = await ReferralCodeModel.findOne({
+          code: createOrderInput.referralCode,
+        });
+        if (Boolean(code)) {
+          await ReferralCodeModel.findByIdAndUpdate(code._id, {
+            count: code.count + 1,
+          });
+        } else {
+          throw new Error("Invalid Referral code");
+        }
+      }
       const options = {
         amount: 10000,
         currency: "INR",
@@ -217,8 +236,8 @@ export default class MutationClass {
         currency: response.currency,
         amount: response.amount,
       };
-    } catch {
-      throw new Error("Something went wrong! try again");
+    } catch (e) {
+      throw new Error(e);
     }
   }
 
@@ -262,6 +281,9 @@ export default class MutationClass {
       const updatedTeam = await TeamModel.findByIdAndUpdate(team._id, {
         status: PaymentStatus.PAID,
       });
+      if (team.city === "Pune") {
+        updateSpreadSheet(team.teamName, team.teamStatus, team._id);
+      }
       return updatedTeam;
     } catch (e) {
       console.log(e);
@@ -290,11 +312,10 @@ export default class MutationClass {
         questionAnswerType,
         firstAnswerLabel,
         secondAnswerLabel,
-        answer2
+        answer2,
       } = createQuestionInput;
       const newQuestion = await new QuestionModel({
         question,
-        // questionAssets,
         questionNo: questionNumber,
         questionType,
         questionAssets,
@@ -302,7 +323,7 @@ export default class MutationClass {
         firstAnswerLabel,
         secondAnswerLabel,
         answer,
-        answer2
+        answer2,
       }).save();
 
       return newQuestion;
@@ -331,7 +352,6 @@ export default class MutationClass {
       }
 
       const questions = await QuestionModel.find();
-      console.log("q", questions);
 
       if (team.quizStatus === QuizStatus.SUBMITTED) {
         throw new Error("Quiz has been already submitted");
@@ -341,15 +361,22 @@ export default class MutationClass {
         throw new Error("Unauthorized");
       }
 
-      let score = 0;
+      let score: number = 0;
 
       forEach(submitQuizInput.responses, (response) => {
         const rightAnswer = questions.find(
           (question) => question.id === response.questionId
-        ).answer;
-        //check both answers
-        console.log("answer", rightAnswer);
-        if (rightAnswer == response.answer) score = score + 1;
+        );
+        // console.log(rightAnswer);
+
+        if (rightAnswer.questionAnswerType === QuestionAnswerType.SINGLE) {
+          // console.log("worked", response.answer);
+          // console.log("score", score);
+          if (rightAnswer.answer == response.answer) score = score + 2;
+        } else {
+          if (rightAnswer.answer === response.answer) score = score++;
+          if (rightAnswer.answer2 === response.answer2) score = score++;
+        }
       });
 
       const updatedTeam = TeamModel.findByIdAndUpdate(team._id, {
@@ -374,6 +401,26 @@ export default class MutationClass {
       });
 
       return { quizStartTime: user.quizStartTime };
+    } catch (e) {
+      console.log(e);
+      throw new Error("Something went wrong! try again");
+    }
+  }
+
+  @Mutation((returns) => CreateReferralCodeResponse)
+  async createReferralCode(
+    @Arg("createReferralCodeInput")
+    createReferralCodeInput: CreateReferralCodeInput,
+    @Ctx() context: Context
+  ) {
+    try {
+      if (context.user.role != Role.ADMIN) throw new Error("Unauthorized");
+
+      const referralCode = await new ReferralCodeModel({
+        code: createReferralCodeInput.code,
+      }).save();
+
+      return referralCode;
     } catch (e) {
       console.log(e);
       throw new Error("Something went wrong! try again");

@@ -60,6 +60,9 @@ export class PayOrderInput {
 export class CreateOrderInput {
   @Field()
   teamName: string;
+
+  @Field({ nullable: true })
+  referralCode: string;
 }
 
 @ObjectType()
@@ -141,12 +144,21 @@ export class QuestionAnswer {
 
   @Field()
   questionNumber: number;
+
+  @Field({ nullable: true })
+  answer2: string;
 }
 
 @InputType()
 export class SubmitQuizInput {
   @Field((type) => [QuestionAnswer])
   responses: [QuestionAnswer];
+}
+
+@InputType()
+export class CreateReferralCodeInput {
+  @Field()
+  code: string;
 }
 
 @ObjectType()
@@ -171,6 +183,15 @@ export class TeamResponse {
 
   @Field((type) => TeamStatus)
   status: TeamStatus;
+}
+
+@ObjectType()
+export class CreateReferralCodeResponse {
+  @Field()
+  _id: string;
+
+  @Field()
+  code: string;
 }
 
 @ObjectType()

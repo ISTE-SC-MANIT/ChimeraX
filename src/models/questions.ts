@@ -4,6 +4,8 @@ import { Field, ObjectType, Int, registerEnumType } from "type-graphql";
 export enum QuestionType {
   TEXT = "TEXT",
   IMAGE = "IMAGE",
+  AUDIO = "AUDIO",
+  VIDEO = "VIDEO",
 }
 registerEnumType(QuestionType, {
   name: "QuestionType",
@@ -61,7 +63,7 @@ export class Question {
 
   @Field((type) => QuestionAnswerType)
   @prop({ enum: QuestionAnswerType, required: true })
-  questionAnswerType: QuestionType;
+  questionAnswerType: QuestionAnswerType;
 }
 
 export default getModelForClass(Question);

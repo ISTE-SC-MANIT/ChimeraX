@@ -17,7 +17,7 @@ export const localSignInController = async (
   req: express.Request,
   res: express.Response
 ) => {
-  console.log(req.body);
+  
   const { email, password } = req.body;
   const newPassword = bcrypt.hashSync(password, salt);
   UserModel.findOne({
@@ -159,7 +159,7 @@ export const forgotPasswordController = (
         },
         (err: any, success: any) => {
           if (err) {
-            console.log("RESET PASSWORD LINK ERROR", err);
+         
             return res.status(400).json({
               error:
                 "Database connection error on user password forgot request",
@@ -168,14 +168,14 @@ export const forgotPasswordController = (
             sgMail
               .send(emailData)
               .then((sent) => {
-                // console.log('SIGNUP EMAIL SENT', sent)
+                
                 return res.json({
                   message: `Email has been sent to ${email}. Follow the instruction to activate your account`,
                 });
               })
               .catch((err) => {
-                console.log(err);
-                // console.log('SIGNUP EMAIL SENT ERROR', err)
+          
+                
                 return res.json({
                   message: err.message,
                 });
@@ -247,7 +247,7 @@ export const googleController = (
   client
     .verifyIdToken({ idToken, audience: process.env.GOOGLE_CLIENT })
     .then((response) => {
-      console.log("GOOGLE LOGIN RESPONSE", response);
+    
       const { email_verified, name, email } = response.getPayload();
       if (email_verified) {
         UserModel.findOne({ email }).exec((err, user) => {
@@ -277,10 +277,10 @@ export const googleController = (
               college: "",
               city: "",
             });
-            console.log(user);
+         
             user.save((err, data) => {
               if (err) {
-                console.log("ERROR GOOGLE LOGIN ON USER SAVE", err);
+       
                 return res.status(400).json({
                   error: "User signup failed with google",
                 });

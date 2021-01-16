@@ -92,6 +92,7 @@ dist
 
 
 .env
+.defaultEnv
 # vuepress build output
 .vuepress/dist
 
@@ -106,3 +107,8 @@ dist
 
 # TernJS port file
 .tern-port
+
+#json keys
+client.json
+src/client.json
+

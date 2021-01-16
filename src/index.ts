@@ -12,6 +12,8 @@ import expressJwt from "express-jwt";
 import jwt from "jsonwebtoken";
 import { buildSchema } from "type-graphql";
 import expressPlayground from "graphql-playground-middleware-express";
+import cron from "node-cron";
+import { updateInternalSheet } from "./user/utils";
 export interface Context {
   user?: UserClass;
 }
@@ -21,6 +23,13 @@ app.use(cors());
 app.use(bodyParser.json());
 
 app.use("/api", authRouter);
+
+// cron
+//   .schedule("* * * * *", () => {
+
+//     updateInternalSheet();
+//   })
+//   .start();
 
 const schema = buildSchema({
   validate: false,
@@ -43,7 +52,6 @@ app.use(
     let user: UserClass | null = null;
     if (token) {
       try {
-      
         const u: any = jwt.verify(token, process.env.JWT_SECRET);
         user = await User.findOne({ _id: u._id });
       } catch (error) {
