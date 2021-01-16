@@ -83,7 +83,7 @@ export default class QueryClass {
         answer: "",
         questionNo: question.questionNo,
         questionType: question.questionType,
-        questionAsset: question.questionAssets,
+        questionAssets: question.questionAssets,
         id: question._id,
         questionAnswerType: question.questionAnswerType,
         firstAnswerLabel: question.firstAnswerLabel,
@@ -91,7 +91,7 @@ export default class QueryClass {
       };
     });
 
-    // console.log(a);
+    console.log(a);
     return a;
   }
 
