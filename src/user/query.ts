@@ -62,7 +62,6 @@ export default class QueryClass {
         user._id.toString() === context.user._id.toString() ||
         Boolean(exists)
       ) {
-        
         return false;
       }
       return true;
@@ -92,7 +91,7 @@ export default class QueryClass {
       };
     });
 
-    console.log(a);
+    // console.log(a);
     return a;
   }
 
@@ -103,7 +102,7 @@ export default class QueryClass {
     }
     const team = await TeamModel.findById(context.user.teamId);
     const leader = await UserModel.findById(team.teamLeadersId);
- 
+
     if (team.teamStatus === TeamStatus.INDIVIDUAL) {
       return {
         teamLeader: {

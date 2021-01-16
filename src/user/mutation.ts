@@ -371,11 +371,14 @@ export default class MutationClass {
 
         if (rightAnswer.questionAnswerType === QuestionAnswerType.SINGLE) {
           // console.log("worked", response.answer);
-          // console.log("score", score);
+          console.log("score", score);
           if (rightAnswer.answer == response.answer) score = score + 2;
         } else {
-          if (rightAnswer.answer === response.answer) score = score++;
-          if (rightAnswer.answer2 === response.answer2) score = score++;
+          console.log(response, rightAnswer);
+          if (rightAnswer.answer === response.answer) {
+            score = ++score;
+          }
+          if (rightAnswer.answer2 === response.answer2) score = ++score;
         }
       });
 
