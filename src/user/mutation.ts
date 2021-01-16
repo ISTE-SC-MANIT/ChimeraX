@@ -372,13 +372,24 @@ export default class MutationClass {
         if (rightAnswer.questionAnswerType === QuestionAnswerType.SINGLE) {
           // console.log("worked", response.answer);
           console.log("score", score);
-          if (rightAnswer.answer == response.answer) score = score + 2;
+          if (
+            rightAnswer.answer.trim().toLowerCase() ==
+            response.answer.trim().toLowerCase()
+          )
+            score = score + 2;
         } else {
           console.log(response, rightAnswer);
-          if (rightAnswer.answer === response.answer) {
+          if (
+            rightAnswer.answer.trim().toLowerCase() ===
+            response.answer.trim().toLowerCase()
+          ) {
             score = ++score;
           }
-          if (rightAnswer.answer2 === response.answer2) score = ++score;
+          if (
+            rightAnswer.answer2.trim().toLowerCase() ===
+            response.answer2.trim().toLowerCase()
+          )
+            score = ++score;
         }
       });
 
