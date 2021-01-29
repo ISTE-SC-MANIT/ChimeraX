@@ -17,13 +17,13 @@ export const localSignInController = async (
   req: express.Request,
   res: express.Response
 ) => {
-  
   const { email, password } = req.body;
   const newPassword = bcrypt.hashSync(password, salt);
   UserModel.findOne({
     email,
   }).exec((err: any, user: any) => {
     if (user) {
+      console.log(user);
       return res.status(400).json({
         errors: "Email is taken",
       });
@@ -159,7 +159,6 @@ export const forgotPasswordController = (
         },
         (err: any, success: any) => {
           if (err) {
-         
             return res.status(400).json({
               error:
                 "Database connection error on user password forgot request",
@@ -168,14 +167,11 @@ export const forgotPasswordController = (
             sgMail
               .send(emailData)
               .then((sent) => {
-                
                 return res.json({
                   message: `Email has been sent to ${email}. Follow the instruction to activate your account`,
                 });
               })
               .catch((err) => {
-          
-                
                 return res.json({
                   message: err.message,
                 });
@@ -247,7 +243,6 @@ export const googleController = (
   client
     .verifyIdToken({ idToken, audience: process.env.GOOGLE_CLIENT })
     .then((response) => {
-    
       const { email_verified, name, email } = response.getPayload();
       if (email_verified) {
         UserModel.findOne({ email }).exec((err, user) => {
@@ -277,10 +272,9 @@ export const googleController = (
               college: "",
               city: "",
             });
-         
+
             user.save((err, data) => {
               if (err) {
-       
                 return res.status(400).json({
                   error: "User signup failed with google",
                 });

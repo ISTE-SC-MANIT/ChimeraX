@@ -367,29 +367,27 @@ export default class MutationClass {
         const rightAnswer = questions.find(
           (question) => question.id === response.questionId
         );
-        // console.log(rightAnswer);
 
+        const variations = rightAnswer.answer.trim().split(",");
+        console.log(variations);
+        const exists = variations.find(
+          (ans) =>
+            ans.trim().toLowerCase() === response.answer.trim().toLowerCase()
+        );
         if (rightAnswer.questionAnswerType === QuestionAnswerType.SINGLE) {
-          // console.log("worked", response.answer);
           console.log("score", score);
-          if (
-            rightAnswer.answer.trim().toLowerCase() ==
-            response.answer.trim().toLowerCase()
-          )
-            score = score + 2;
+          if (Boolean(exists)) score = score + 2;
         } else {
-          console.log(response, rightAnswer);
-          if (
-            rightAnswer.answer.trim().toLowerCase() ===
-            response.answer.trim().toLowerCase()
-          ) {
+          const variations2 = rightAnswer.answer2.trim().split(",");
+          const exists2 = variations2.find(
+            (ans) =>
+              ans.trim().toLowerCase() === response.answer2.trim().toLowerCase()
+          );
+
+          if (Boolean(exists)) {
             score = ++score;
           }
-          if (
-            rightAnswer.answer2.trim().toLowerCase() ===
-            response.answer2.trim().toLowerCase()
-          )
-            score = ++score;
+          if (Boolean(exists2)) score = ++score;
         }
       });
 
