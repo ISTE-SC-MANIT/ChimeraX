@@ -17,47 +17,51 @@ export const localSignInController = async (
   req: express.Request,
   res: express.Response
 ) => {
-  const { email, password } = req.body;
-  const newPassword = bcrypt.hashSync(password, salt);
-  UserModel.findOne({
-    email,
-  }).exec((err: any, user: any) => {
-    if (user) {
-      // console.log(user);
-      return res.status(400).json({
-        errors: "Email is taken",
-      });
-    }
-  });
-
   try {
-    await new UserModel({
+    const { email, password } = req.body;
+    const newPassword = bcrypt.hashSync(password, salt);
+    UserModel.findOne({
       email,
-      password: newPassword,
-      id: uuidv4(),
-      strategy: "LOCAL",
-      name: " ",
-      college: "",
-    })
-      .save()
-      .then((user) => {
-        const token = jwt.sign(
-          {
-            _id: user._id,
-          },
-          process.env.JWT_SECRET,
-          {
-            expiresIn: "7d",
-          }
-        );
-        res
-          .json({ token, user: { _id: user._id, email: user.email } })
-          .sendStatus(201);
-      });
-  } catch (error) {
-    console.error(error);
-    res.status(500).send(error);
-    return;
+    }).exec((err: any, user: any) => {
+      if (user) {
+        // console.log(user);
+        return res.status(400).json({
+          errors: "Email is taken",
+        });
+      }
+    });
+
+    try {
+      await new UserModel({
+        email,
+        password: newPassword,
+        id: uuidv4(),
+        strategy: "LOCAL",
+        name: " ",
+        college: "",
+      })
+        .save()
+        .then((user) => {
+          const token = jwt.sign(
+            {
+              _id: user._id,
+            },
+            process.env.JWT_SECRET,
+            {
+              expiresIn: "7d",
+            }
+          );
+          res
+            .json({ token, user: { _id: user._id, email: user.email } })
+            .sendStatus(201);
+        });
+    } catch (error) {
+      console.error(error);
+      res.status(500).send(error);
+      return;
+    }
+  } catch (e) {
+    console.log(e);
   }
 };
 
@@ -65,49 +69,53 @@ export const localLoginController = (
   req: express.Request,
   res: express.Response
 ) => {
-  const { email, password } = req.body;
-  UserModel.findOne({
-    email,
-  }).exec((err, user) => {
-    if (err || !user) {
-      return res.status(400).json({
-        errors:
-          "User with this email does not exist. Please signup to continue",
-      });
-    }
-
-    if (user.strategy !== "LOCAL") {
-      return res.status(403).json({
-        errors: "User might have been signed up from different platform",
-      });
-    }
-    // authenticate
-    if (!bcrypt.compareSync(password, user.password)) {
-      return res.status(400).json({
-        errors: "Incorrect password",
-      });
-    }
-    // generate a token and send to client
-    const token = jwt.sign(
-      {
-        _id: user._id,
-      },
-      process.env.JWT_SECRET,
-      {
-        expiresIn: "7d",
+  try {
+    const { email, password } = req.body;
+    UserModel.findOne({
+      email,
+    }).exec((err, user) => {
+      if (err || !user) {
+        return res.status(400).json({
+          errors:
+            "User with this email does not exist. Please signup to continue",
+        });
       }
-    );
-    const { _id, email, step } = user;
 
-    return res.json({
-      token,
-      user: {
-        _id,
-        step,
-        email,
-      },
+      if (user.strategy !== "LOCAL") {
+        return res.status(403).json({
+          errors: "User might have been signed up from different platform",
+        });
+      }
+      // authenticate
+      if (!bcrypt.compareSync(password, user.password)) {
+        return res.status(400).json({
+          errors: "Incorrect password",
+        });
+      }
+      // generate a token and send to client
+      const token = jwt.sign(
+        {
+          _id: user._id,
+        },
+        process.env.JWT_SECRET,
+        {
+          expiresIn: "7d",
+        }
+      );
+      const { _id, email, step } = user;
+
+      return res.json({
+        token,
+        user: {
+          _id,
+          step,
+          email,
+        },
+      });
     });
-  });
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 export const forgotPasswordController = (
