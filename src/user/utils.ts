@@ -31,13 +31,13 @@ export const updateSpreadSheet = async (
     };
     await sheet.addRow(row);
   } catch (e) {
-    console.log("error", e);
+    // console.log("error", e);
   }
 };
 
 export const updateInternalSheet = async () => {
   try {
-    console.log("worked");
+    // console.log("worked");
     const doc: GoogleSpreadsheet.GoogleSpreadsheet = new GoogleSheet(
       "1jNbPJGLE7mOdZJBWy0h4lEOWPyYI3TkW7BArGv-wQWk"
     );
@@ -45,7 +45,7 @@ export const updateInternalSheet = async () => {
     await doc.loadInfo();
     const sheet = doc.sheetsByIndex[0];
     const previousRows = await sheet.getRows();
-    console.log(previousRows);
+    // console.log(previousRows);
     await previousRows.forEach(async (row, index: number) => {
       await row.delete();
     });
@@ -62,9 +62,9 @@ export const updateInternalSheet = async () => {
         };
       })
     );
-    console.log("rows", rows);
+    // console.log("rows", rows);
     await sheet.addRows(rows);
   } catch (e) {
-    console.log("error", e);
+    // console.log("error", e);
   }
 };

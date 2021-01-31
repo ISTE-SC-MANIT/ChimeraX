@@ -136,7 +136,7 @@ export default class MutationClass {
 
       return team;
     } catch (e) {
-      console.log(e);
+      // console.log(e);
       throw new Error("Something went wrong! try again");
     }
   }
@@ -185,7 +185,7 @@ export default class MutationClass {
       });
       return team;
     } catch (e) {
-      console.log(e);
+      // console.log(e);
       throw new Error("Something went wrong! try again");
     }
   }
@@ -286,7 +286,7 @@ export default class MutationClass {
       }
       return updatedTeam;
     } catch (e) {
-      console.log(e);
+      // console.log(e);
       throw new Error("Something went wrong! try again");
     }
   }
@@ -328,7 +328,7 @@ export default class MutationClass {
 
       return newQuestion;
     } catch (e) {
-      console.log(e);
+      // console.log(e);
       throw new Error(e);
     }
   }
@@ -369,13 +369,13 @@ export default class MutationClass {
         );
 
         const variations = rightAnswer.answer.trim().split(",");
-        console.log(variations);
+        // console.log(variations);
         const exists = variations.find(
           (ans) =>
             ans.trim().toLowerCase() === response.answer.trim().toLowerCase()
         );
         if (rightAnswer.questionAnswerType === QuestionAnswerType.SINGLE) {
-          console.log("score", score);
+          // console.log("score", score);
           if (Boolean(exists)) score = score + 2;
         } else {
           const variations2 = rightAnswer.answer2.trim().split(",");
@@ -398,7 +398,7 @@ export default class MutationClass {
 
       return updatedTeam;
     } catch (e) {
-      console.log(e);
+      // console.log(e);
       throw new Error("Something went wrong! try again");
     }
   }
@@ -414,7 +414,7 @@ export default class MutationClass {
 
       return { quizStartTime: user.quizStartTime };
     } catch (e) {
-      console.log(e);
+      // console.log(e);
       throw new Error("Something went wrong! try again");
     }
   }
@@ -434,7 +434,7 @@ export default class MutationClass {
 
       return referralCode;
     } catch (e) {
-      console.log(e);
+      // console.log(e);
       throw new Error("Something went wrong! try again");
     }
   }

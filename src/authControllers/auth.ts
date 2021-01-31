@@ -23,7 +23,7 @@ export const localSignInController = async (
     email,
   }).exec((err: any, user: any) => {
     if (user) {
-      console.log(user);
+      // console.log(user);
       return res.status(400).json({
         errors: "Email is taken",
       });
@@ -238,64 +238,78 @@ export const googleController = (
   req: express.Request,
   res: express.Response
 ) => {
-  const { idToken } = req.body;
-
-  client
-    .verifyIdToken({ idToken, audience: process.env.GOOGLE_CLIENT })
-    .then((response) => {
-      const { email_verified, name, email } = response.getPayload();
-      if (email_verified) {
-        UserModel.findOne({ email }).exec((err, user) => {
-          if (user) {
-            if (user.strategy !== "GOOGLE") {
-              return res.status(403).json({ error: "Invalid login strategy" });
-            }
-
-            const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
-              expiresIn: "7d",
-            });
-            const { _id, email, name, step } = user;
-
-            return res.json({
-              token,
-              user: { _id, email, name, step },
-            });
-          } else {
-            let password = email;
-
-            user = new UserModel({
-              name: "",
-              email,
-              password,
-              strategy: "GOOGLE",
-              phone: "",
-              college: "",
-              city: "",
-            });
-
-            user.save((err, data) => {
-              if (err) {
-                return res.status(400).json({
-                  error: "User signup failed with google",
-                });
+  try {
+    const { idToken } = req.body;
+    if (!Boolean(idToken)) {
+      return res.status(400).json({
+        error: "Google login failed. Try again",
+      });
+    }
+    client
+      .verifyIdToken({ idToken, audience: process.env.GOOGLE_CLIENT })
+      .then((response) => {
+        const { email_verified, name, email } = response.getPayload();
+        if (email_verified) {
+          UserModel.findOne({ email }).exec((err, user) => {
+            if (user) {
+              if (user.strategy !== "GOOGLE") {
+                return res
+                  .status(403)
+                  .json({ error: "Invalid login strategy" });
               }
+
               const token = jwt.sign(
-                { _id: data._id },
+                { _id: user._id },
                 process.env.JWT_SECRET,
-                { expiresIn: "7d" }
+                {
+                  expiresIn: "7d",
+                }
               );
-              const { _id, email, name, step } = data;
+              const { _id, email, name, step } = user;
+
               return res.json({
                 token,
                 user: { _id, email, name, step },
               });
-            });
-          }
-        });
-      } else {
-        return res.status(400).json({
-          error: "Google login failed. Try again",
-        });
-      }
-    });
+            } else {
+              let password = email;
+
+              user = new UserModel({
+                name: "",
+                email,
+                password,
+                strategy: "GOOGLE",
+                phone: "",
+                college: "",
+                city: "",
+              });
+
+              user.save((err, data) => {
+                if (err) {
+                  return res.status(400).json({
+                    error: "User signup failed with google",
+                  });
+                }
+                const token = jwt.sign(
+                  { _id: data._id },
+                  process.env.JWT_SECRET,
+                  { expiresIn: "7d" }
+                );
+                const { _id, email, name, step } = data;
+                return res.json({
+                  token,
+                  user: { _id, email, name, step },
+                });
+              });
+            }
+          });
+        } else {
+          return res.status(400).json({
+            error: "Google login failed. Try again",
+          });
+        }
+      });
+  } catch (e) {
+    console.log(e);
+  }
 };

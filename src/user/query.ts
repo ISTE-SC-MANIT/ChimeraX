@@ -53,11 +53,11 @@ export default class QueryClass {
         sentInvitations,
         (invitation) => invitation.receiversId === user._id.toString()
       );
-      console.log(
-        context.user._id,
-        user._id,
-        context.user._id.toString() == user._id
-      );
+      // console.log(
+      //   context.user._id,
+      //   user._id,
+      //   context.user._id.toString() == user._id
+      // );
       if (
         user._id.toString() === context.user._id.toString() ||
         Boolean(exists)
@@ -91,7 +91,7 @@ export default class QueryClass {
       };
     });
 
-    console.log(a);
+    // console.log(a);
     return a;
   }
 
@@ -144,7 +144,7 @@ export default class QueryClass {
         userQuizStatus: user.quizStatus,
       };
     } catch (e) {
-      console.log(e);
+      // console.log(e);
       throw new Error("Something went wrong");
     }
   }
