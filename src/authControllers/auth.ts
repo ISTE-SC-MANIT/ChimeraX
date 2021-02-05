@@ -17,52 +17,40 @@ export const localSignInController = async (
   req: express.Request,
   res: express.Response
 ) => {
-  try {
-    const { email, password } = req.body;
-    const newPassword = bcrypt.hashSync(password, salt);
-    UserModel.findOne({
-      email,
-    }).exec((err: any, user: any) => {
-      if (user) {
-        // console.log(user);
-        return res.status(400).json({
-          errors: "Email is taken",
-        });
-      }
-    });
+  const { email, password } = req.body;
+  const newPassword = bcrypt.hashSync(password, salt);
 
-    try {
-      await new UserModel({
-        email,
-        password: newPassword,
-        id: uuidv4(),
-        strategy: "LOCAL",
-        name: " ",
-        college: "",
-      })
-        .save()
-        .then((user) => {
-          const token = jwt.sign(
-            {
-              _id: user._id,
-            },
-            process.env.JWT_SECRET,
-            {
-              expiresIn: "7d",
-            }
-          );
-          res
-            .json({ token, user: { _id: user._id, email: user.email } })
-            .sendStatus(201);
-        });
-    } catch (error) {
-      console.error(error);
-      res.status(500).send(error);
-      return;
-    }
-  } catch (e) {
-    console.log(e);
-  }
+  new UserModel({
+    email,
+    password: newPassword,
+    id: uuidv4(),
+    strategy: "LOCAL",
+    name: " ",
+    college: "",
+  })
+    .save()
+    .then((user) => {
+      const token = jwt.sign(
+        {
+          _id: user._id,
+        },
+        process.env.JWT_SECRET,
+        {
+          expiresIn: "7d",
+        }
+      );
+      if (Boolean(user)) {
+        console.log("is execeuted", user);
+        return res
+          .status(200)
+          .json({ token, user: { _id: user._id, email: user.email } });
+      }
+    })
+    .catch((e) => {
+      return res.status(500).json({
+        errors: "Email is taken",
+      });
+    });
 };
 
 export const localLoginController = (
@@ -82,7 +70,7 @@ export const localLoginController = (
       }
 
       if (user.strategy !== "LOCAL") {
-        return res.status(403).json({
+        return res.status(400).json({
           errors: "User might have been signed up from different platform",
         });
       }
@@ -262,7 +250,7 @@ export const googleController = (
             if (user) {
               if (user.strategy !== "GOOGLE") {
                 return res
-                  .status(403)
+                  .status(400)
                   .json({ error: "Invalid login strategy" });
               }
 

@@ -9,7 +9,7 @@
     "format": "prettier --write \"src/**/*!(.d).ts\"",
     "watch": "nodemon src/index.ts",
     "build": "tsc",
-    "start": "node out/index.js"
+    "start": "node out/src/index.js"
   },
   "author": "Devansh <kdevanshsharma23@gmail.com>",
   "license": "ISC",
@@ -28,6 +28,7 @@
     "express-graphql": "^0.12.0",
     "express-jwt": "^6.0.0",
     "express-session": "^1.17.1",
+    "faker": "^5.2.0",
     "google-auth-library": "^6.1.3",
     "google-spreadsheet": "^3.1.15",
     "graphql": "^15.4.0",
@@ -35,6 +36,7 @@
     "graphql-playground-middleware-express": "^1.7.22",
     "jsonwebtoken": "^8.5.1",
     "loadash": "^1.0.0",
+    "loadtest": "^5.1.2",
     "lodash": "^4.17.20",
     "mongoose": "^5.10.18",
     "node-cron": "^2.0.3",

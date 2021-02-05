@@ -1,10 +1,10 @@
 import express from "express";
 import mongoose from "mongoose";
 import env from "dotenv";
-import authRouter from "../src/authRoutess/authRoute";
-import UserMutation from "../src/user/mutation";
-import UserQuery from "../src/user/query";
-import User, { User as UserClass } from "../src/models/user";
+import authRouter from "./authRoutess/authRoute";
+import UserMutation from "./user/mutation";
+import UserQuery from "./user/query";
+import User, { User as UserClass } from "./models/user";
 import cors from "cors";
 import bodyParser from "body-parser";
 import { graphqlHTTP } from "express-graphql";
@@ -12,8 +12,12 @@ import expressJwt from "express-jwt";
 import jwt from "jsonwebtoken";
 import { buildSchema } from "type-graphql";
 import expressPlayground from "graphql-playground-middleware-express";
-import cron from "node-cron";
-import { updateInternalSheet } from "./user/utils";
+
+process.on("uncaughtException", function (err) {
+  console.error(err);
+  console.log("Node NOT Exiting...");
+});
+
 export interface Context {
   user?: UserClass;
 }
