@@ -1,0 +1,264 @@
+"""Exposes a URL that specifies the behaviour of this scalar."""
+directive @specifiedBy(
+  """The URL that specifies the behaviour of this scalar."""
+  url: String!
+) on SCALAR
+
+input AcceptInvitationInput {
+  invitationId: String!
+  receiverId: String!
+}
+
+input CreateOrderInput {
+  teamName: String!
+  referralCode: String
+}
+
+input CreateQuestionInput {
+  question: String!
+  questionType: String!
+  questionAnswerType: String!
+  answer: String!
+  answer2: String
+  questionNumber: Float!
+  questionAssets: String
+  firstAnswerLabel: String!
+  secondAnswerLabel: String
+}
+
+input CreateReferralCodeInput {
+  code: String!
+}
+
+type CreateReferralCodeResponse {
+  _id: String!
+  code: String!
+}
+
+input DeleteInvitationInput {
+  invitationId: String!
+}
+
+type Invitation {
+  _id: String
+  id: String
+  sendersId: String!
+  sendersName: String!
+  sendersEmail: String!
+  receiversName: String!
+  receiversEmail: String!
+  receiversId: String!
+  status: Status!
+}
+
+input InvitationInput {
+  receiverId: String!
+  receiverName: String!
+  receiverEmail: String!
+}
+
+type InvitationResponse {
+  sentInvitations: [Invitation!]!
+  receivedInvitations: [Invitation!]!
+}
+
+type Member {
+  userId: String!
+  name: String!
+  email: String!
+}
+
+type Mutation {
+  registerUser(userInfo: UserInput!): User!
+  sendInvitation(invitationInput: InvitationInput!): Invitation!
+  acceptInvitation(acceptInvitationInput: AcceptInvitationInput!): Team!
+  deleteInvitation(deleteInvitationInput: DeleteInvitationInput!): Invitation!
+  playAsIndividual: Team!
+  createOrder(createOrderInput: CreateOrderInput!): Order!
+  payOrder(payOrderInput: PayOrderInput!): Team!
+  createQuestion(createQuestionInput: CreateQuestionInput!): Question!
+  submitQuiz(submitQuizInput: SubmitQuizInput!): Team!
+  startQuiz: StartQuizResponse!
+  createReferralCode(createReferralCodeInput: CreateReferralCodeInput!): CreateReferralCodeResponse!
+}
+
+type Order {
+  id: String!
+  amount: Float!
+  currency: String!
+}
+
+"""payment status of team"""
+enum PaymentStatus {
+  PAID
+  UNPAID
+}
+
+input PayOrderInput {
+  paymentId: String!
+}
+
+type Query {
+  viewer: User!
+  getInvitations: InvitationResponse!
+  getSingleUsers: [User!]!
+  getQuestions: [Question!]!
+  getTeamDetails: TeamResponse!
+  getQuizDetails: QuizDetailsResponse!
+}
+
+type Question {
+  _id: String
+  id: String
+  question: String!
+  questionAssets: String
+  firstAnswerLabel: String!
+  secondAnswerLabel: String
+  answer: String!
+  answer2: String
+  questionNo: Float!
+  questionType: QuestionType!
+  questionAnswerType: QuestionAnswerType!
+}
+
+input QuestionAnswer {
+  questionId: String!
+  answer: String!
+  questionNumber: Float!
+  answer2: String
+}
+
+"""type of answer question is having"""
+enum QuestionAnswerType {
+  SINGLE
+  DOUBLE
+}
+
+type QuestionResponse {
+  responses: [QuestionResponseItem!]!
+}
+
+type QuestionResponseItem {
+  questionId: String!
+  answer: String!
+  questionNumber: Float!
+}
+
+"""type of question"""
+enum QuestionType {
+  TEXT
+  IMAGE
+  AUDIO
+  VIDEO
+}
+
+type QuizDetailsResponse {
+  quizStartTime: String!
+  userQuizStatus: UserQuizStatus!
+}
+
+"""tells wether quiz is submitted or not"""
+enum QuizStatus {
+  SUBMITTED
+  NOT_SUBMITTED
+}
+
+"""role of user in team"""
+enum Role {
+  TEAM_LEADER
+  TEAM_HELPER
+  NOT_INITIALIZED
+  ADMIN
+}
+
+type StartQuizResponse {
+  quizStartTime: String!
+}
+
+"""status of invitation"""
+enum Status {
+  ACCEPTED
+  REJECTED
+  PENDING
+}
+
+"""Step on which user is present"""
+enum Step {
+  REGISTER
+  CHOOSE_TEAM
+  PAYMENT
+  TEST
+}
+
+input SubmitQuizInput {
+  responses: [QuestionAnswer!]!
+}
+
+type Team {
+  _id: String
+  id: String
+  teamLeadersId: String!
+  invitationId: String!
+  teamHelpersId: String
+  teamName: String
+  city: String
+  teamStatus: TeamStatus!
+  status: PaymentStatus!
+  quizStatus: QuizStatus!
+  score: Float!
+  response: QuestionResponse!
+}
+
+type TeamResponse {
+  teamLeader: Member!
+  teamHelper: Member
+  status: TeamStatus!
+}
+
+"""tells wether player is individual or team"""
+enum TeamStatus {
+  INDIVIDUAL
+  TEAM
+  NOT_INITIALIZED
+}
+
+type User {
+  _id: String
+  id: String
+  password: String!
+  name: String!
+  email: String!
+  phone: String!
+  college: String
+  year: Int!
+  strategy: String!
+  registered: Boolean!
+  city: String!
+  resetPasswordLink: String!
+  teamId: String!
+  step: Step!
+  role: Role!
+  teamStatus: TeamStatus!
+  quizStatus: UserQuizStatus!
+  quizStartTime: String!
+  paymentId: String!
+  quizEndTime: String!
+  timeLeft: Float!
+  metadata: String!
+}
+
+input UserInput {
+  name: String
+  phone: String
+  year: Float
+  city: String
+  college: String
+}
+
+"""status of quiz"""
+enum UserQuizStatus {
+  NOT_STARTED
+  STARTED
+  ENDED
+}
+
